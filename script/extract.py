@@ -10,9 +10,11 @@ log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(level=log_level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def get_raw_path(filename):
+    """Garante o caminho correto para a pasta data/raw definida ou calculada"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(script_dir)
-    return os.path.join(project_root, "data", "raw", filename)
+    raw_dir = os.getenv("RAW_DATA_PATH", "data/raw/")
+    return os.path.join(project_root, raw_dir, filename)
 
 def extract_owid_data():
     path = get_raw_path("owid-covid-data.csv")
@@ -45,7 +47,7 @@ def extract_who_api():
         
         output_path = get_raw_path("who_life_expectancy.csv")
         df_api.to_csv(output_path, index=False)
-        logging.info(f"Dados brutos da API gravados com sucesso em: {output_path}")
+        logging.info(f"Dados brutos da API gravados em: {output_path}")
         
         return df_api
     except Exception as e:
@@ -56,4 +58,4 @@ if __name__ == "__main__":
     logging.info("A iniciar o pipeline de extração (Semana 1)...")
     owid_df = extract_owid_data()
     who_df = extract_who_api()
-    logging.info("Extração concluída.")
+    logging.info("Extração concluída com sucesso.")
