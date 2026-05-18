@@ -54,8 +54,23 @@ def extract_who_api():
         logging.error(f"Problema ao extrair dados da API: {e}")
         return None
 
+def extract_vaccination_data():
+    """Extrai dataset de vacinação COVID-19 por país (Kaggle - Our World in Data)"""
+    path = get_raw_path("country_vaccinations.csv")
+    logging.info(f"A ler Dataset de Vacinação: {path}")
+    
+    if not os.path.exists(path):
+        logging.error(f"Ficheiro não encontrado em: {path}")
+        logging.error("Descarregar em: https://www.kaggle.com/datasets/gpreda/covid-world-vaccination-progress")
+        return None
+    
+    df = pd.read_csv(path)
+    logging.info(f"Sucesso! {len(df)} linhas carregadas do dataset de vacinação.")
+    return df
+
 if __name__ == "__main__":
     logging.info("A iniciar o pipeline de extração (Semana 1)...")
     owid_df = extract_owid_data()
     who_df = extract_who_api()
+    vaccination_df = extract_vaccination_data()
     logging.info("Extração concluída com sucesso.")
