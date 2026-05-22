@@ -1,36 +1,34 @@
-Projeto de ETD: Saúde e Saúde Pública
+# Projeto de ETD: Saúde e Saúde Pública
 
+Este projeto consiste no desenvolvimento de um pipeline ETL (Extract, Transform, Load) modular focado no domínio da Saúde & Saúde Pública. O objetivo é extrair dados epidemiológicos da COVID-19, taxas de vacinação e indicadores globais de expectativa de vida para realizar análises de correlação e impacto.
 
+A arquitetura segue o princípio de **Medallion Architecture** (Raw ➔ Silver ➔ Gold), garantindo a rastreabilidade e qualidade dos dados.
 
-Este projeto consiste no desenvolvimento de um pipeline ETL (Extract, Transform, Load) modular focado no domínio da Saúde \& Saúde Pública. O objetivo é extrair dados epidemiológicos da COVID-19 e enriquecê-los com indicadores globais de expectativa de vida para futuras análises de correlação e impacto.
+---
 
+## Arquitetura do Pipeline
 
+```mermaid
+graph TD
+    subgraph Camada Raw (Semana 1)
+        A[OWID CSV] -->|extract.py| R1[data/raw/owid-covid-data.csv]
+        B[WHO GHO API] -->|extract.py| R2[data/raw/who_life_expectancy.csv]
+        C[Kaggle CSV] -->|extract.py| R3[data/raw/country_vaccinations.csv]
+    end
 
-\---
+    subgraph Camada Silver (Semana 2)
+        R1 -->|Limpeza e Filtros| S1[data/silver/silver_owid.csv]
+        R2 -->|Deduplicação Anual| S2[data/silver/silver_who.csv]
+        R3 -->|Forward Fill por País| S3[data/silver/silver_vaccination.csv]
+    end
 
+    S1 --> DQ[Data Quality Check]
+    S2 --> DQ
+    S3 --> DQ
+    DQ -->|Log| DQR[data_quality_report.txt]
 
-
-&#x09;Semana 1 - Extração
-
-O pipeline consome dados de duas fontes principais:
-
-
-
-1\. OWID-covid-data - Dataset da COVID-19
-
-&#x20;  Tipo: Ficheiro CSV de grande volume.
-
-&#x20;  Conteúdo: Dados históricos mundiais diários sobre contágios, óbitos, internamentos e taxas de vacinação por país.
-
-&#x20;  Justificação Técnica: O volume do ficheiro justifica cuidados no carregamento e futuras otimizações de memória e processamento.
-
-
-
-2\. World Health Organization (WHO) - GHO API (API)
-
-&#x20;  Tipo: API Pública (`https://ghoapi.azureedge.net/api/WHOSIS\_000001`).
-
-&#x20;  Conteúdo: Indicador oficial de Expectativa de Vida à Nascença (Life Expectancy at Birth) segregado por país e ano.
-
-&#x20;  Justificação Técnica: Permite enriquecer o dataset com o panorama da saúde base pré-pandemia de cada nação.
-
+    subgraph Camada Gold (Semana 2)
+        S1 -->|Joins e Métricas| G[data/gold/gold_covid_health_analytics.csv]
+        S2 -->|Joins e Métricas| G
+        S3 -->|Joins e Métricas| G
+    end
