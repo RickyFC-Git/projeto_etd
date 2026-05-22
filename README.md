@@ -10,13 +10,13 @@ A arquitetura segue o princípio de **Medallion Architecture** (Raw ➔ Silver �
 
 ```mermaid
 graph TD
-    subgraph Camada Raw (Semana 1)
+    subgraph "Camada Raw (Semana 1)"
         A[OWID CSV] -->|extract.py| R1[data/raw/owid-covid-data.csv]
         B[WHO GHO API] -->|extract.py| R2[data/raw/who_life_expectancy.csv]
         C[Kaggle CSV] -->|extract.py| R3[data/raw/country_vaccinations.csv]
     end
 
-    subgraph Camada Silver (Semana 2)
+    subgraph "Camada Silver (Semana 2)"
         R1 -->|Limpeza e Filtros| S1[data/silver/silver_owid.csv]
         R2 -->|Deduplicação Anual| S2[data/silver/silver_who.csv]
         R3 -->|Forward Fill por País| S3[data/silver/silver_vaccination.csv]
@@ -27,7 +27,7 @@ graph TD
     S3 --> DQ
     DQ -->|Log| DQR[data_quality_report.txt]
 
-    subgraph Camada Gold (Semana 2)
+    subgraph "Camada Gold (Semana 2)"
         S1 -->|Joins e Métricas| G[data/gold/gold_covid_health_analytics.csv]
         S2 -->|Joins e Métricas| G
         S3 -->|Joins e Métricas| G
