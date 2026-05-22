@@ -1,0 +1,37 @@
+=== RELATÓRIO DE QUALIDADE DE DADOS ===
+
+[ OWID COVID ]
+  Total de registos: 393903
+  Países únicos: 237
+  Intervalo de datas: 2020-01-01 00:00:00 -> 2024-08-14 00:00:00
+  Registos com new_cases negativos: 0
+  iso_code nulos: 0
+  Duplicados (iso_code + date): 0
+  Países sem nenhum caso registado: 6
+
+[ WHO Life Expectancy ]
+  Total de registos: 4070
+  Países únicos: 185
+  Anos cobertos: 2000 -> 2021
+  iso_code nulos: 0
+  Life expectancy fora do intervalo [30-100]: 0
+  Duplicados (iso_code + year): 0
+
+[ Vacinação COVID (Kaggle) ]
+  Total de registos (pós-limpeza): 84056
+  Países únicos: 217
+  Intervalo de datas: 2020-12-02 00:00:00 -> 2022-03-29 00:00:00
+  Nulos em total_vaccinations (pós-ffill): 31 (0.0%)
+  Decisão: forward fill por país para colunas cumulativas; dias sem reporte preenchidos com 0 nos diários
+  Duplicados (iso_code + date): 0
+  Média de tipos de vacina por país: 3.5
+
+[ Integração entre fontes ]
+  Países em comum OWID + WHO: 185
+  Países em comum OWID + WHO + Vacinação: 181
+  Países apenas no OWID (sem life expectancy): 52
+  Países apenas na WHO (sem dados COVID): 0
+  Países com dados COVID mas sem dados de vacinação: 20
+  Decisão: inner join entre OWID e WHO; left join com vacinação para reter países sem dados de vacinas
+
+=== FIM DO RELATÓRIO ===
