@@ -1,12 +1,13 @@
 import os
 import pandas as pd
 import logging
+from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+load_dotenv()
 
-RAW_DIR = "data/raw"
-SILVER_DIR = "data/silver"
-GOLD_DIR = "data/gold"
+RAW_DIR = os.getenv("RAW_DATA_PATH", "data/raw")
+SILVER_DIR = os.getenv("PROCESSED_DATA_PATH", "data/processed")
+GOLD_DIR = os.getenv("GOLD_DATA_PATH", "data/gold")
 
 os.makedirs(SILVER_DIR, exist_ok=True)
 os.makedirs(GOLD_DIR, exist_ok=True)
