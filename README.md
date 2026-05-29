@@ -32,3 +32,48 @@ graph TD
         S2 -->|Joins e Métricas| G
         S3 -->|Joins e Métricas| G
     end
+
+### Modelação da Base de Dados (Diagrama ER)
+
+```mermaid
+erDiagram
+    silver_covid_epidemiology {
+        TEXT iso_code PK
+        TEXT date PK
+        TEXT continent
+        TEXT location
+        REAL total_cases
+        REAL new_cases
+        REAL total_deaths
+        REAL new_deaths
+        REAL population
+        INTEGER year
+    }
+    silver_covid_vaccination {
+        TEXT iso_code PK
+        TEXT date PK
+        TEXT country
+        REAL total_vaccinations
+        REAL people_vaccinated
+        REAL people_fully_vaccinated
+        REAL daily_vaccinations
+        TEXT vaccines
+        INTEGER year
+    }
+    silver_health_indicators {
+        TEXT iso_code PK
+        INTEGER year PK
+        REAL life_expectancy
+    }
+    gold_fact_analytics {
+        TEXT iso_code PK
+        INTEGER year PK
+        TEXT location
+        REAL total_cases_year
+        REAL total_deaths_year
+        REAL max_stringency_index
+        REAL population
+        REAL life_expectancy
+        REAL max_total_vaccinations
+        REAL vaccination_rate
+    }
