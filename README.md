@@ -9,37 +9,9 @@ A arquitetura segue o princípio de **Medallion Architecture** (Raw ➔ Silver �
 
 ## Arquitetura do Pipeline
 
-O fluxo de dados foi desenhado de forma modular, onde cada etapa resolve uma responsabilidade isolada do ciclo de vida dos dados.
-
 ```mermaid
 graph TD
-    subgraph "Camada Raw (Semana 1)"
-        A[OWID CSV] -->|extract.py| R1[data/raw/owid-covid-data.csv]
-        B[WHO GHO API] -->|extract.py| R2[data/raw/who_life_expectancy.csv]
-        C[Kaggle CSV] -->|extract.py| R3[data/raw/country_vaccinations.csv]
-    end
 
-    subgraph "Camada Silver (Semana 2)"
-        R1 -->|Limpeza e Filtros| S1[data/silver/silver_owid.csv]
-        R2 -->|Deduplicação Anual| S2[data/silver/silver_who.csv]
-        R3 -->|Forward Fill por País| S3[data/silver/silver_vaccination.csv]
-    end
-
-    S1 --> DQ[Data Quality Check]
-    S2 --> DQ
-    S3 --> DQ
-    DQ -->|Log| DQR[data_quality_report.txt]
-
-    subgraph "Camada Gold (Semana 2)"
-        S1 -->|Joins e Métricas| G[data/gold/gold_covid_health_analytics.csv]
-        S2 -->|Joins e Métricas| G
-        S3 -->|Joins e Métricas| G
-    end
-
-### Modelação da Base de Dados (Diagrama ER)
-
-```mermaid
-graph TD
     subgraph "Camada Raw (Semana 1) - Extração"
         A[Our World in Data - CSV] -->|extract.py| R1[data/raw/owid-covid-data.csv]
         B[WHO GHO API - JSON] -->|extract.py| R2[data/raw/who_life_expectancy.csv]
@@ -63,18 +35,23 @@ graph TD
         S3 -->|load.py - DDL Estrito| T2[(silver_covid_vaccination)]
         S2 -->|load.py - DDL Estrito| T3[(silver_health_indicators)]
         G -->|load.py - DDL Estrito| T4[(gold_fact_analytics)]
-        
-        T1 & T2 & T3 & T4 --> DQ{Validações SQL Pós-Carga}
+
+        T1 --> DQ{Validações SQL Pós-Carga}
+        T2 --> DQ
+        T3 --> DQ
+        T4 --> DQ
     end
+```
 
-    ---
+---
 
-## 2. Modelação da Base de Dados (Diagrama ER)
+# 2. Modelação da Base de Dados (Diagrama ER)
 
-Os dados processados foram carregados para o SQLite. Para assegurar a integridade analítica, foram definidas chaves primárias compostas e tipos de dados estritos.
+Os dados processados foram carregados para SQLite. Para assegurar a integridade analítica, foram definidas chaves primárias compostas e tipos de dados estritos.
 
 ```mermaid
 erDiagram
+
     silver_covid_epidemiology {
         TEXT iso_code PK
         TEXT date PK
@@ -87,6 +64,7 @@ erDiagram
         REAL population
         INTEGER year
     }
+
     silver_covid_vaccination {
         TEXT iso_code PK
         TEXT date PK
@@ -98,11 +76,13 @@ erDiagram
         TEXT vaccines
         INTEGER year
     }
+
     silver_health_indicators {
         TEXT iso_code PK
         INTEGER year PK
         REAL life_expectancy
     }
+
     gold_fact_analytics {
         TEXT iso_code PK
         INTEGER year PK
@@ -116,6 +96,8 @@ erDiagram
         REAL vaccination_rate
     }
 
-    gold_fact_analytics ||--o{ silver_covid_epidemiology : "agrega por iso_code"
-    gold_fact_analytics ||--o{ silver_covid_vaccination : "agrega por iso_code"
-    gold_fact_analytics ||--o{ silver_health_indicators : "associa indicadores de"
+    gold_fact_analytics ||--o{ silver_covid_epidemiology : agrega
+    gold_fact_analytics ||--o{ silver_covid_vaccination : agrega
+    gold_fact_analytics ||--o{ silver_health_indicators : associa
+```
+
