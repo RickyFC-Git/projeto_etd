@@ -9,6 +9,8 @@ A arquitetura segue o princípio de **Medallion Architecture** (Raw ➔ Silver �
 
 ## Arquitetura do Pipeline
 
+O fluxo de dados foi desenhado de forma modular, onde cada etapa resolve uma responsabilidade isolada do ciclo de vida dos dados.
+
 ```mermaid
 graph TD
     subgraph "Camada Raw (Semana 1)"
@@ -64,3 +66,56 @@ graph TD
         
         T1 & T2 & T3 & T4 --> DQ{Validações SQL Pós-Carga}
     end
+
+    ---
+
+## 2. Modelação da Base de Dados (Diagrama ER)
+
+Os dados processados foram carregados para o SQLite. Para assegurar a integridade analítica, foram definidas chaves primárias compostas e tipos de dados estritos.
+
+```mermaid
+erDiagram
+    silver_covid_epidemiology {
+        TEXT iso_code PK
+        TEXT date PK
+        TEXT continent
+        TEXT location
+        REAL total_cases
+        REAL new_cases
+        REAL total_deaths
+        REAL new_deaths
+        REAL population
+        INTEGER year
+    }
+    silver_covid_vaccination {
+        TEXT iso_code PK
+        TEXT date PK
+        TEXT country
+        REAL total_vaccinations
+        REAL people_vaccinated
+        REAL people_fully_vaccinated
+        REAL daily_vaccinations
+        TEXT vaccines
+        INTEGER year
+    }
+    silver_health_indicators {
+        TEXT iso_code PK
+        INTEGER year PK
+        REAL life_expectancy
+    }
+    gold_fact_analytics {
+        TEXT iso_code PK
+        INTEGER year PK
+        TEXT location
+        REAL total_cases_year
+        REAL total_deaths_year
+        REAL max_stringency_index
+        REAL population
+        REAL life_expectancy
+        REAL max_total_vaccinations
+        REAL vaccination_rate
+    }
+
+    gold_fact_analytics ||--o{ silver_covid_epidemiology : "agrega por iso_code"
+    gold_fact_analytics ||--o{ silver_covid_vaccination : "agrega por iso_code"
+    gold_fact_analytics ||--o{ silver_health_indicators : "associa indicadores de"
