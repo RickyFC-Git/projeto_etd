@@ -1,11 +1,26 @@
 venv/
+.venv/
+
 .env
 
 __pycache__/
 *.pyc
+*.pyo
 
+
+data/silver/
+data/processed/
+data/gold/
+
+data/*.db
+*.db
+
+data_quality_report.txt
+load_validation_report.txt
 
 .DS_Store
+Thumbs.db
+
 .vscode/
 .idea/
-
+*.iml
